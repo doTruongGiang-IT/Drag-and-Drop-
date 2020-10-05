@@ -2,6 +2,8 @@ import { Button, Icon } from '@material-ui/core';
 import React, { Component } from 'react';
 import TextArea from 'react-textarea-autosize';
 import Card from '@material-ui/core/Card';
+import {connect} from 'react-redux';
+import {addList, addCard} from '../actions';
 
 class TrelloActionButton extends Component {
     state = {
@@ -27,6 +29,30 @@ class TrelloActionButton extends Component {
         });
     };
 
+    handleAddList = () => {
+        const {dispatch} = this.props;
+        const {text} = this.state;
+        if( text ) {
+            this.setState({
+                text: ''
+            });
+            dispatch(addList(text));
+        };
+        return;
+    };
+
+    handleAddCard = () => {
+        const {dispatch, listID} = this.props;
+        const {text} = this.state;
+        if( text ) {
+            this.setState({
+                text: ''
+            });
+            dispatch(addCard(listID, text));
+        };
+        return;
+    };
+
     renderAddButton = () => {
         let {list} = this.props;
         let buttonText = list ? 'Add another list' : 'Add another card';
@@ -34,12 +60,11 @@ class TrelloActionButton extends Component {
         let buttonTextColor = list ? 'white' : 'inherit';
         let buttonTextBackground = list ? 'rgba(0,0,0,.15)' : 'inherit';
         let buttonMarginLeft = list ? 15 : 0;
-        let buttonWidth = list ? 160 : 270;
 
         return (
             <div
              onClick={this.openForm}
-             style={{...style.button, width:buttonWidth, marginLeft:buttonMarginLeft, opacity:buttonTextOpacity, color:buttonTextColor, backgroundColor:buttonTextBackground}}>
+             style={{...style.button, marginLeft:buttonMarginLeft, opacity:buttonTextOpacity, color:buttonTextColor, backgroundColor:buttonTextBackground}}>
                 <Icon>add</Icon>
                 <span>{buttonText}</span>
             </div>
@@ -63,7 +88,10 @@ class TrelloActionButton extends Component {
                         />
                     </Card>
                     <div style={style.buttonGroup}>
-                        <Button variant="contained" style={{color:"white", backgroundColor:"#5aac44"}}>
+                        <Button
+                         variant="contained"
+                         style={{color:"white", backgroundColor:"#5aac44"}}
+                         onMouseDown={list ? this.handleAddList : this.handleAddCard} >
                             {buttonTitle}
                         </Button>
                         <Icon style={{marginLeft:10}}>close</Icon>
@@ -82,7 +110,9 @@ const style = {
         alignItems: 'center',
         borderRadius: 3,
         height: 36,
+        width: 'auto',
         paddingLeft: 10,
+        paddingRight: 15,
         cursor: 'pointer'
     },
     form: {
@@ -107,4 +137,4 @@ const style = {
     }
 }
 
-export default TrelloActionButton;
+export default connect()(TrelloActionButton);
