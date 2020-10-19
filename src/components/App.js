@@ -2,28 +2,48 @@ import React, { Component } from 'react';
 import TrelloList from './TrelloList';
 import {connect} from 'react-redux';
 import TrelloActionButton from './TrelloActionButton';
+import {DragDropContext, Droppable} from 'react-beautiful-dnd';
+import {dragTask} from '../actions';
+import styled from 'styled-components';
 
+const ListContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`
 class App extends Component {
+
+  onDragEnd = (result) => {
+    const { destination, source, draggableId, type } = result;
+    if(!destination) {
+      return;
+    }
+    this.props.dispatch(dragTask(source.droppableId, 
+                              destination.droppableId, 
+                              source.index, 
+                              destination.index, 
+                              draggableId, type));
+  };
+
   render() {
     let {lists} = this.props;
 
     return (
-      <div className="App">
-        <h1><center>Trello Dashboard</center></h1>
-        <div style={style.App}>
-          { lists.map(list => {
-            return <TrelloList listID={list.id} key={list.id} title={list.title} cards={list.cards} />
-          }) }
-          <TrelloActionButton list />
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <div className="App">
+          <h1><center>Trello Dashboard</center></h1>
+          <Droppable droppableId="all-lists" direction="horizontal" type="list">
+            {provided => (
+              <ListContainer ref={provided.innerRef} {...provided.droppableProps}>
+                { lists.map((list, index) => {
+                  return <TrelloList listID={list.id} key={list.id} title={list.title} cards={list.cards} index={index} />
+                }) }
+                <TrelloActionButton list />
+              </ListContainer>
+            )}
+          </Droppable>
         </div>
-      </div>
+      </DragDropContext>
     );
-  }
-}
-
-const style = {
-  App: {
-    display: 'flex'
   }
 }
 
@@ -33,4 +53,4 @@ const stateToProps = state => {
   };
 };
 
-export default connect(stateToProps, null)(App);
+export default connect(stateToProps)(App);

@@ -1,30 +1,41 @@
 import React from 'react';
 import TrelloCard from './TrelloCard';
 import TrelloActionButton from './TrelloActionButton';
+import {Droppable, Draggable} from 'react-beautiful-dnd';
+import styled from 'styled-components';
 
-const TrelloList = ({title, cards, listID}) => {
+const ListContainer = styled.div`
+    background-color: #ccc;
+    border-radius: 3px;
+    width: 300px;
+    height: 100%;
+    padding: 5px;
+    margin-left: 20px;
+    cursor: pointer;
+    text-align: center;
+`
+
+const TrelloList = ({title, cards, listID, index}) => {
     return (
-        <div style={style.container}>
-            <h2>{title}</h2>
-            { cards.map(card => {
-                return <TrelloCard key={card.id} content={card.text} />
-            }) }
-            <TrelloActionButton listID={listID} />
-        </div>
+        <Draggable draggableId={listID} index={index}>
+            {provided => (
+                <ListContainer ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                    <Droppable droppableId={listID}>
+                        { provided => (
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                                <h2>{title}</h2>
+                                { cards.map((card, index) => {
+                                    return <TrelloCard key={card.id} index={index} content={card.text} id={card.id} />
+                                }) }
+                                {provided.placeholder}
+                                <TrelloActionButton listID={listID} />
+                            </div>
+                        ) }
+                    </Droppable>
+                </ListContainer>
+            )}
+        </Draggable>
     );
-};
-
-const style = {
-    container: {
-        backgroundColor: "#ccc",
-        borderRadius: 3,
-        width: 300,
-        height: '100%',
-        padding: 5,
-        marginLeft: 20,
-        cursor: 'pointer',
-        textAlign: 'center'
-    }
 };
 
 export default TrelloList;

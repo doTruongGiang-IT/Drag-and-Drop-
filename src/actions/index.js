@@ -3,5 +3,6 @@ export * from './cardsAction';
 
 export const CONSTANTS = {
     addCard: 'addCard',
-    addList: 'addList'
+    addList: 'addList',
+    dragHappened: 'dragHappened'
 };
